@@ -1,0 +1,82 @@
+{
+  "project_name": "s-diff",
+  "lsp": {
+    "tsgo": {
+      "settings": {
+        // Same as in workspace root package.json
+        "package_version": "7.0.0-dev.20260405.1"
+      }
+    },
+    "oxlint": {
+      "initialization_options": {
+        "settings": {
+          "run": "onType",
+          "fixKind": "dangerous_fix_or_suggestion",
+          "typeAware": true,
+          "unusedDisableDirectives": "deny"
+        }
+      }
+    },
+    "oxfmt": {
+      "initialization_options": {
+        "settings": {
+          "run": "onSave"
+        }
+      }
+    }
+  },
+  "languages": {
+    "HTML": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+    "Markdown": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    },
+    "TypeScript": {
+      "language_servers": ["tsgo", "oxlint", "oxfmt", "codebook"],
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [
+        // { "code_action": "source.fixAll.oxc" },
+        { "language_server": { "name": "oxfmt" } }
+      ]
+    },
+    "JavaScript": {
+      "language_servers": ["tsgo", "oxlint", "oxfmt", "codebook"],
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [
+        // Makes saving slow
+        { "code_action": "source.fixAll.oxc" },
+        { "language_server": { "name": "oxfmt" } }
+      ]
+    },
+    "JSON": {
+      "language_servers": ["oxfmt", "oxlint", "json-language-server"],
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "language_server": { "name": "oxfmt" } }
+      ]
+    },
+    "JSONC": {
+      "language_servers": ["oxfmt", "oxlint", "json-language-server"],
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [
+        { "code_action": "source.fixAll.oxc" },
+        { "language_server": { "name": "oxfmt" } }
+      ]
+    },
+    "YAML": {
+      "format_on_save": "on",
+      "prettier": { "allowed": false },
+      "formatter": [{ "language_server": { "name": "oxfmt" } }]
+    }
+  }
+}

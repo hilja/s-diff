@@ -1,0 +1,32 @@
+{
+  "include": ["**/*.ts"],
+  "exclude": ["node_modules", "dist"],
+  "compilerOptions": {
+    // Base options
+    "allowImportingTsExtensions": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noErrorTruncation": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+
+    // Strictness
+    "noImplicitAny": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "strict": true,
+    "verbatimModuleSyntax": true,
+
+    // Transpiling
+    "lib": ["DOM", "ESNext"],
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "target": "ESNext",
+
+    // 3rd party Types
+    "types": ["vite/client", "vitest/importMeta"]
+  }
+}
