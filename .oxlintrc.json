@@ -148,7 +148,6 @@
     "vitest/hoisted-apis-on-top": "error",
     "vitest/no-conditional-tests": "error",
     "vitest/no-disabled-tests": "off",
-    "vitest/no-importing-vitest-globals": "error",
     "vitest/no-standalone-expect": "error",
     "vitest/prefer-called-once": "error",
     "vitest/require-to-throw-message": "off"
