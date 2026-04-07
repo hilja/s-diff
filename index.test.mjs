@@ -62,6 +62,19 @@ describe('getUnused', () => {
   })
 })
 
+describe('matches', () => {
+  it('supports exact, prefix, suffix, and contains matching', () => {
+    expect(matches('FOO', 'FOO')).toBe(true)
+    expect(matches('FOO', 'BAR')).toBe(false)
+    expect(matches('FOO_*', 'FOO_BAR')).toBe(true)
+    expect(matches('FOO_*', 'BAR_FOO')).toBe(false)
+    expect(matches('*_BAR', 'FOO_BAR')).toBe(true)
+    expect(matches('*_BAR', 'BAR_FOO')).toBe(false)
+    expect(matches('*MID*', 'HAS_MID_VALUE')).toBe(true)
+    expect(matches('*MID*', 'HAS_VALUE')).toBe(false)
+  })
+})
+
 describe('validatePath', () => {
   const testEnvPath = path.resolve(process.cwd(), '.test.env')
 
@@ -119,12 +132,12 @@ describe('parseEnvFile', () => {
     })
   })
 
-  it('parses env file with regex filter', async () => {
+  it('parses env file with pattern filter', async () => {
     const result = await parseEnvFile({
       app: 'test',
       reveal: false,
       'env-file': '.test.env',
-      filter: ['^LOCAL_'],
+      filter: ['LOCAL_*'],
     })
     expect(result).toEqual({
       TEST_VAR: '123',

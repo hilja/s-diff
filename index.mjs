@@ -202,8 +202,24 @@ export async function getRemoteSecrets(args) {
   }
 }
 
-// If a not a word or a number characters, it's probably a regex
-const isReg = /[^\d\w\n]/
+/**
+ * Super simple pattern matcher.
+ *   FOO   -> exact
+ *   FOO_* -> prefix
+ *   *_BAR -> suffix
+ *   *MID* -> contains
+ * @param {string} pattern
+ * @param {string} str
+ * @return {boolean}
+ */
+export function matches(pattern, str) {
+  const starts = pattern.startsWith('*')
+  const ends = pattern.endsWith('*')
+  if (starts && ends) return str.includes(pattern.slice(1, -1))
+  if (starts) return str.endsWith(pattern.slice(1))
+  if (ends) return str.startsWith(pattern.slice(0, -1))
+  return str === pattern
+}
 
 /**
  * Read the .env file and parses to JSON
@@ -220,10 +236,7 @@ export async function parseEnvFile(args) {
   /** @type {Obj} */
   const filteredEnv = {}
   for (const [envVar, val] of Object.entries(parsedEnv)) {
-    const isMatch = args.filter.some(x =>
-      isReg.test(x) ? new RegExp(x).test(envVar) : envVar === x
-    )
-    if (!isMatch) filteredEnv[envVar] = val
+    if (!args.filter.some(p => matches(p, envVar))) filteredEnv[envVar] = val
   }
 
   return filteredEnv
