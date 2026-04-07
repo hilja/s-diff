@@ -9,7 +9,7 @@
   "license": "ISC",
   "author": "hilja",
   "repository": {
-    "url": "git+https://github.com/hilja/s-diff.git"
+    "url": "git+https://github.com/hilja/fly-secrets-diff.git"
   },
   "bin": {
     "fly-secrets-diff": "./index.mjs",

@@ -1,5 +1,5 @@
 {
-  "project_name": "s-diff",
+  "project_name": "fly-secrets-diff",
   "lsp": {
     "tsgo": {
       "settings": {
