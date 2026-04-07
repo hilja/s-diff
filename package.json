@@ -11,6 +11,9 @@
   "repository": {
     "url": "git+https://github.com/hilja/s-diff.git"
   },
+  "bin": {
+    "sdiff": "./index.mjs"
+  },
   "files": [
     "index.mjs"
   ],
