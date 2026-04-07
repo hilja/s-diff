@@ -69,7 +69,7 @@ function args() {
     },
   })
 
-  if (!app) throw bailWithUsage('--app is a required arg')
+  if (!app) throw bail('--app is a required arg', null, true)
 
   return { app, ...values }
 }
@@ -86,9 +86,7 @@ function args() {
 export function $(cmd, args, interactive = true) {
   const { promise, resolve, reject } =
     /** @type {PromiseWithResolvers<string>} */ (Promise.withResolvers())
-  const spawn = child_process.spawn(cmd, args, {
-    env: { ...process.env, FORCE_COLOR: '1' },
-  })
+  const spawn = child_process.spawn(cmd, args, { env: process.env })
 
   /** @type {string[]} */
   const stdoutChunks = []
@@ -151,24 +149,16 @@ const log = {
 }
 
 /**
- * @param {string} str
- * @param {unknown} [err]
+ * Logs message, an optional error, and usage if defined, then exits with 1
+ * @param {unknown} message
+ * @param {unknown} err
+ * @param {boolean} [withUsage]
  * @returns {void}
  */
-function bailWithMessage(str, err) {
-  log.error('Err:', str)
+function bail(message, err = '', withUsage = false) {
+  log.error('Err:', message)
   if (err) log.error(err)
-  process.exit(1)
-}
-
-/**
- * @param {string} str
- * @returns {void}
- */
-function bailWithUsage(str) {
-  log.error('Err:', str)
-  log.info('Please consult the help:')
-  usage()
+  if (withUsage) usage()
   process.exit(1)
 }
 
@@ -184,7 +174,7 @@ export async function validatePath(str) {
     await fs.access(envPath)
     return envPath
   } catch (err) {
-    bailWithMessage(`The path ${envPath} doesn’t exists`, err)
+    bail(`The path ${envPath} doesn’t exists`, err)
     return ''
   }
 }
@@ -208,10 +198,7 @@ export async function getRemoteSecrets(args) {
 
     return flySecrets.map(x => x.name)
   } catch (err) {
-    throw bailWithMessage(
-      `unable to get remote secrets from the app ${args.app}`,
-      err
-    )
+    throw bail(`unable to get remote secrets from the app ${args.app}`, err)
   }
 }
 
