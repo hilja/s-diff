@@ -28,25 +28,28 @@ function usage() {
 
   Examples:
     Basic:
-    $ sdiff --env-file ./myApp/.env --app my-fly-app
+    $ fly-secrets-diff --env-file ./myApp/.env --app my-app
+    Shorthand:
+    $ fsd --env-file ./myApp/.env --app my-app
 
-    You might want to exclude some env vars that are not really secrets, those
-    should be defined in fly.toml:
-    $ sdiff --a my-fly-app --filter NODE_ENV --filter PORT --filter TZ
+    Exclude env vars which are not secrets:
+    $ fsd -a my-app -f NODE_ENV -f PORT -f TZ
 
-    Or filter out secrets that start with LOCAL_:
-    $ sdiff --a my-fly-app --filter '^LOCAL_'
+    Or use the custom pattern matcher, it only uses star and does three things:
+    $ fsd -a my-app -f LOCAL_*  # Prefix
+    $ fsd -a my-app -f *_FOO    # Suffix
+    $ fsd -a my-app -f *FOO*    # Contains
 
   Usage:
-    sdiff [flags]
+    fly-secrets-diff [flags]
+    fsd [flags]
 
     Flags:
 
     -a, --app      : Name of your fly app
-    -e, --env-file : Absolute or relative path to your .env file, defaults to
-                     ./.env
-    -f, --filter   : Multiple values of strings or a regex pattern of keys you
-                     want to exclude from the check
+    -e, --env-file : Absolute or relative path to your .env file, default ./.env
+    -f, --filter   : Multiple values of strings or a pattern: FOO_*, *_FOO, or
+                     *FOO* of keys you want to exclude from the check
     -r, --reveal   : Should the secrets be logged into std out, normally they
                      are obfuscated
     -h, --help     : Show help

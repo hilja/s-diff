@@ -27,6 +27,12 @@ importers:
         specifier: 4.1.2
         version: 4.1.2(@types/node@25.5.2)(vite@8.0.3(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)(@types/node@25.5.2))
 
+  .test-cli-project:
+    dependencies:
+      fly-secrets-diff:
+        specifier: file:/Users/antti/web/s-diff/.test-cli-pack/fly-secrets-diff-0.1.0.tgz
+        version: file:.test-cli-pack/fly-secrets-diff-0.1.0.tgz
+
 packages:
 
   '@emnapi/core@1.9.2':
@@ -541,6 +547,11 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fly-secrets-diff@file:.test-cli-pack/fly-secrets-diff-0.1.0.tgz:
+    resolution: {integrity: sha512-Cs4kMsNakGUaJsGQxBenQSuaO/Q8LrVqLV5T3oCv5mXs8pkPMGf/FZQ2ko8CxjEXUmPlrrhdd26zBpjYToYPJg==, tarball: file:.test-cli-pack/fly-secrets-diff-0.1.0.tgz}
+    version: 0.1.0
+    hasBin: true
 
   fsevents@2.3.3:
     resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==}
@@ -1115,6 +1126,8 @@ snapshots:
   fdir@6.5.0(picomatch@4.0.4):
     optionalDependencies:
       picomatch: 4.0.4
+
+  fly-secrets-diff@file:.test-cli-pack/fly-secrets-diff-0.1.0.tgz: {}
 
   fsevents@2.3.3:
     optional: true

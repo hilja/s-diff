@@ -11,6 +11,7 @@ import {
   serialize,
   getMissing,
   getUnused,
+  matches,
   validatePath,
   parseEnvFile,
   printDiff,
@@ -267,5 +268,129 @@ describe('printDiff', () => {
     spawnSpy.mockRestore()
     tableSpy.mockRestore()
     infoSpy.mockRestore()
+  })
+})
+
+describe('fly-secrets-diff bin', () => {
+  const testProjectDir = path.resolve(process.cwd(), '.test-cli-project')
+  const testPackDir = path.resolve(process.cwd(), '.test-cli-pack')
+  const testBinDir = path.join(testProjectDir, 'bin')
+  const testEnvPath = path.join(testProjectDir, '.test.cli.env')
+  const flyctlPath = path.join(testBinDir, 'flyctl')
+
+  /**
+   * @typedef {{ stdout: string, stderr: string }} ExecResult
+   */
+
+  /**
+   * @param {string} cmd
+   * @param {readonly string[]} args
+   * @param {import('node:child_process').ExecFileOptionsWithStringEncoding} [options]
+   * @returns {Promise<ExecResult>}
+   */
+  const run = (cmd, args, options = { encoding: 'utf8' }) => {
+    const { promise, resolve, reject } =
+      /** @type {PromiseWithResolvers<ExecResult>} */ (Promise.withResolvers())
+
+    child_process.execFile(
+      cmd,
+      args,
+      { encoding: 'utf8', ...options },
+      (error, stdout, stderr) => {
+        if (error) {
+          reject(new Error(String(stderr) || error.message))
+          return
+        }
+
+        resolve({ stdout, stderr })
+      }
+    )
+
+    return promise
+  }
+
+  beforeAll(async () => {
+    await fs.mkdir(testProjectDir, { recursive: true })
+    await fs.mkdir(testPackDir, { recursive: true })
+    await fs.mkdir(testBinDir, { recursive: true })
+
+    await fs.writeFile(
+      path.join(testProjectDir, 'package.json'),
+      '{ "name": "fly-secrets-diff-cli-test", "private": true }\n'
+    )
+    await fs.writeFile(testEnvPath, 'LOCAL_A=123\nSHARED=456')
+    await fs.writeFile(
+      flyctlPath,
+      `#!/bin/sh
+printf '[{"name":"REMOTE_A","digest":"123"},{"name":"SHARED","digest":"456"}]'
+`
+    )
+    await fs.chmod(flyctlPath, 0o755)
+  })
+
+  afterAll(async () => {
+    await fs.rm(testProjectDir, { recursive: true, force: true })
+    await fs.rm(testPackDir, { recursive: true, force: true })
+  })
+
+  it('runs both packaged bins with pnpm exec', async () => {
+    const packed = await run(
+      'pnpm',
+      ['pack', '--pack-destination', testPackDir],
+      { cwd: process.cwd() }
+    )
+    const tarballName = packed.stdout.trim().split('\n').at(-1)
+
+    if (!tarballName) {
+      throw new Error('pnpm pack did not output a tarball name')
+    }
+
+    const tarballPath = path.isAbsolute(tarballName)
+      ? tarballName
+      : path.join(testPackDir, tarballName)
+
+    await run('pnpm', ['add', tarballPath], {
+      cwd: testProjectDir,
+    })
+
+    const env = {
+      ...process.env,
+      PATH: [testBinDir, process.env['PATH']]
+        .filter(Boolean)
+        .join(path.delimiter),
+    }
+
+    const flySecretsDiffResult = await run(
+      'pnpm',
+      [
+        'exec',
+        'fly-secrets-diff',
+        '--env-file',
+        '.test.cli.env',
+        '--app',
+        'test-app',
+      ],
+      {
+        cwd: testProjectDir,
+        env,
+      }
+    )
+
+    expect(flySecretsDiffResult.stdout).toContain('LOCAL_A')
+    expect(flySecretsDiffResult.stdout).toContain('REMOTE_A')
+    expect(flySecretsDiffResult.stdout).toContain('SHARED')
+
+    const fsdResult = await run(
+      'pnpm',
+      ['exec', 'fsd', '--env-file', '.test.cli.env', '--app', 'test-app'],
+      {
+        cwd: testProjectDir,
+        env,
+      }
+    )
+
+    expect(fsdResult.stdout).toContain('LOCAL_A')
+    expect(fsdResult.stdout).toContain('REMOTE_A')
+    expect(fsdResult.stdout).toContain('SHARED')
   })
 })
