@@ -20,6 +20,10 @@ pnpm add fly-secrets-diff
 
 Or just copy it over to you project, it's a single JavaScript file with no deps.
 
+```sh
+wget -O fsd.js https://raw.githubusercontent.com/hilja/fly-secrets-diff/refs/heads/main/index.mjs
+```
+
 ## Usage
 
 ```
@@ -61,6 +65,5 @@ pnpm i
 pnpm format
 pnpm lint
 pnpm test
-pnpm build
 pnpm ncu # Update packages
 ```
