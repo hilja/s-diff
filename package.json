@@ -1,5 +1,5 @@
 {
-  "name": "s-diff",
+  "name": "f-diff",
   "version": "0.1.0",
   "description": "CLI tool to diff fly.io machine secrets and local secrets",
   "keywords": [
@@ -12,7 +12,7 @@
     "url": "git+https://github.com/hilja/s-diff.git"
   },
   "bin": {
-    "sdiff": "./index.mjs"
+    "fdiff": "./index.mjs"
   },
   "files": [
     "index.mjs"

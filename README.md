@@ -1,4 +1,4 @@
-# s-diff, fly.io secrets differ
+# f-diff, fly.io secrets differ
 
 An easy way to diff fly.io machine secrets with your local secrets.
 
@@ -7,7 +7,7 @@ An easy way to diff fly.io machine secrets with your local secrets.
 ## Install
 
 ```sh
-pnpm add s-diff
+pnpm add f-diff
 ```
 
 ## Usage
@@ -17,7 +17,7 @@ Diff your fly.io app secrets with your local .env file.
 
 Examples:
   Basic:
-  $ sdiff --env-file ./myApp/.env --app my-fly-app
+  $ fdiff --env-file ./myApp/.env --app my-fly-app
 
   You might want to exclude some env vars that are not really secrets, those
   should be defined in fly.toml:
