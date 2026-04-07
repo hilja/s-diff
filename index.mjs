@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import child_process from 'node:child_process'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { parseArgs, parseEnv, styleText } from 'node:util'
@@ -12,13 +13,6 @@ import { parseArgs, parseEnv, styleText } from 'node:util'
  * @property {string[]} [filter]
  * @property {string} env-file
  * @property {boolean} reveal
- */
-
-/**
- * @typedef {Object} Logger
- * @property {function(...*): void} info - Logs information messages in blue
- * @property {function(...*): void} error - Logs error messages in red
- * @property {function(...*): void} success - Logs success messages in green
  */
 
 /**
@@ -90,8 +84,8 @@ function args() {
  * @returns {Promise<string>}
  */
 export function $(cmd, args, interactive = true) {
-  const { promise, resolve, reject } = Promise.withResolvers()
-
+  const { promise, resolve, reject } =
+    /** @type {PromiseWithResolvers<string>} */ (Promise.withResolvers())
   const spawn = child_process.spawn(cmd, args, {
     env: { ...process.env, FORCE_COLOR: '1' },
   })
@@ -102,12 +96,14 @@ export function $(cmd, args, interactive = true) {
   const stderrChunks = []
 
   spawn.stdout.on('data', data => {
+    /** @type {string} */
     const dataStr = data.toString()
     if (interactive) console.log(dataStr.trim())
     stdoutChunks.push(dataStr)
   })
 
   spawn.stderr.on('data', data => {
+    /** @type {string} */
     const dataStr = data.toString()
     if (interactive) console.error(dataStr.trim())
     stderrChunks.push(dataStr)
@@ -137,11 +133,21 @@ export function $(cmd, args, interactive = true) {
   return promise
 }
 
-/** @type {Logger} */
+/**
+ * @typedef {Object} Logger
+ * @property {( ...args: any[] ) => void} info - Logs information messages in blue
+ * @property {( ...args: any[] ) => void} error - Logs error messages in red
+ * @property {( ...args: any[] ) => void} success - Logs success messages in green
+ */
+
+/**
+ * A utility for styled console logs
+ * @type {Logger}
+ */
 const log = {
-  info: (...x) => console.log(styleText('blue', x.join(' '))),
+  info: (...x) => console.info(styleText('blue', x.join(' '))),
   error: (...x) => console.error(styleText('red', x.join(' '))),
-  success: (...x) => console.error(styleText('green', x.join(' '))),
+  success: (...x) => console.log(styleText('green', x.join(' '))),
 }
 
 /**
@@ -171,7 +177,7 @@ function bailWithUsage(str) {
  * @param {string} str
  * @returns {Promise<string>} - can be a void, actually
  */
-async function validatePath(str) {
+export async function validatePath(str) {
   const envPath = path.isAbsolute(str) ? str : path.resolve(process.cwd(), str)
   try {
     // Check if the path exists
@@ -189,7 +195,7 @@ async function validatePath(str) {
  * @param {Args} args
  * @returns {Promise<string[]>}
  */
-async function getRemoteSecrets(args) {
+export async function getRemoteSecrets(args) {
   try {
     const list = await $('flyctl', [
       'secrets',
@@ -217,7 +223,7 @@ const isReg = /[^\d\w\n]/
  * @param {Args} args
  * @returns {Promise<Obj>}
  */
-async function parseEnvFile(args) {
+export async function parseEnvFile(args) {
   const path = await validatePath(args['env-file'])
   const contents = (await fs.readFile(path)).toString()
   const parsedEnv = /** @type {Obj} */ (parseEnv(contents))
@@ -230,8 +236,7 @@ async function parseEnvFile(args) {
     const isMatch = args.filter.some(x =>
       isReg.test(x) ? new RegExp(x).test(envVar) : envVar === x
     )
-    if (isMatch) continue
-    filteredEnv[envVar] = val
+    if (!isMatch) filteredEnv[envVar] = val
   }
 
   return filteredEnv
@@ -243,7 +248,7 @@ async function parseEnvFile(args) {
  * @param {string[]} remote
  * @returns {{ localDiff: string[], remoteDiff: string[] }}
  */
-function getDiff(local, remote) {
+export function getDiff(local, remote) {
   const localDiff = local.filter(x => !remote.includes(x))
   const remoteDiff = remote.filter(x => !local.includes(x))
 
@@ -256,7 +261,7 @@ function getDiff(local, remote) {
  * @param {Args} args
  * @returns {Promise<void>}
  */
-async function printDiff(args) {
+export async function printDiff(args) {
   const remote = await getRemoteSecrets(args)
   const local = await parseEnvFile(args)
   const localKeys = Object.keys(local)
@@ -300,7 +305,7 @@ async function printDiff(args) {
  * @param {Obj} local
  * @returns string
  */
-function serialize(local) {
+export function serialize(local) {
   /** @param {string} key */
   return key => `${key}="${local[key]}"`
 }
@@ -310,7 +315,7 @@ function serialize(local) {
  * @param {string[]} remote
  * @returns {{missingArr: string[], missingStr: string}}
  */
-function getMissing(local, remote) {
+export function getMissing(local, remote) {
   const { localDiff } = getDiff(Object.keys(local), remote)
   return {
     missingStr: localDiff.map(serialize(local)).join(' \\ \n   '),
@@ -323,7 +328,7 @@ function getMissing(local, remote) {
  * @param {string[]} remote
  * @returns {{unusedArr: string[], unusedStr: string}}
  */
-function getUnused(local, remote) {
+export function getUnused(local, remote) {
   const { remoteDiff } = getDiff(Object.keys(local), remote)
   return {
     unusedStr: remoteDiff.join(' \\ \n   '),
@@ -344,7 +349,9 @@ async function run(args) {
   await printDiff(args)
 }
 
+const asScript = process.argv[1] === import.meta.filename
+
 /**
  * Execute the cli
  */
-await run(args())
+if (asScript) await run(args())
