@@ -352,7 +352,9 @@ async function run(args) {
   await printDiff(args)
 }
 
-const runAsScript = process.argv[1] === import.meta.filename
+const entry = process.argv[1]
+const runAsScript =
+  entry && import.meta.filename.endsWith(entry.replace(process.cwd(), ''))
 
 /**
  * Execute the cli
