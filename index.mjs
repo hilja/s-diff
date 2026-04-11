@@ -86,7 +86,7 @@ function args() {
  * @param {boolean} interactive - log stdout during execution
  * @returns {Promise<string>}
  */
-export function $(cmd, args, interactive = true) {
+export function $(cmd, args, interactive = false) {
   const { promise, resolve, reject } =
     /** @type {PromiseWithResolvers<string>} */ (Promise.withResolvers())
   const spawn = child_process.spawn(cmd, args, { env: process.env })
